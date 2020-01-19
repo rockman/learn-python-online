@@ -33,6 +33,38 @@ def forwarder(f, *args, **kwargs):
     return f(*args, **kwargs)
 
 
+def function_factory(a):
+    def adder(value):
+        return value + a
+    return adder
+
+
+def function_without_nonlocal(a):
+    b = 2
+
+    def modifier():
+        b = 2 * a
+
+    modifier()
+    return b
+
+
+def function_with_nonlocal(a):
+    b = 2
+
+    def modifier():
+        nonlocal b
+        b = 2 * a
+
+    modifier()
+    return b
+
+
+def test_nonlocal():
+    assert function_without_nonlocal(3) == 2
+    assert function_with_nonlocal(3) == 6
+
+
 def test_callable_instance():
     doubler = Doubler()
 
@@ -90,3 +122,10 @@ def test_forwarding_arguments():
     assert c == 1
     assert d == 'foo=42, bar=hello'
 
+
+def test_function_factory():
+    adder2 = function_factory(2)
+
+    assert adder2(1) == 3
+    assert adder2(2) == 4
+    assert adder2.__closure__
